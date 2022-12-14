@@ -94,23 +94,24 @@ r53_k8s_domains = [r for r in k8s_domains if r in existing_r53_domains]
 missing_k8s_txt = [r for r in r53_k8s_domains if r not in existing_r53_txt_domains]
 
 # make the change batch for the route53 call, modify this as needed
-change_batch=[]
-for r in missing_k8s_txt:
-    change_batch.append(
-        {
-            'Action': 'CREATE',
-            'ResourceRecordSet': {
-                'Name': r,
-                'Type': 'TXT',
-                'TTL': 300,
-                'ResourceRecords': [
-                    {
-                        'Value': '\heritage=external-dns,owner="' + txt_owner_id + '\"'
-                    },
-                ]
-            }
-        })
-
+change_batch = [
+    {
+        'Action': 'CREATE',
+        'ResourceRecordSet': {
+            'Name': r,
+            'Type': 'TXT',
+            'TTL': 300,
+            'ResourceRecords': [
+                {
+                    'Value': '\heritage=external-dns,owner="'
+                    + txt_owner_id
+                    + '\"'
+                },
+            ],
+        },
+    }
+    for r in missing_k8s_txt
+]
 print('This will create the following resources')
 print(change_batch)
 response = input("Good to go? ")
